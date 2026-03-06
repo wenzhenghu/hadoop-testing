@@ -24,38 +24,43 @@ We try to deploy a big data ecosystem in multiple Docker containers to simulate 
 
 The supported components are listed below:
 
-| Name           | Version | Kerberos Ready | Optional | Default Enabled | Variables                              |
-| -------------- | ------- | -------------- | -------- | --------------- | -------------------------------------- |
-| JDK 8          | 8.0.432 | Not Applicable | No       | Yes             |                                        |
-| JDK 11         | 11.0.25 | Not Applicable | No       | Yes             |                                        |
-| JDK 17         | 17.0.13 | Not Applicable | No       | Yes             |                                        |
-| JDK 21         | 21.0.5  | Not Applicable | Yes      | No              | jdk21_enabled                          |
-| KDC            | latest  | Yes            | Yes      | No              | kerberos_enabled                       |
-| MySQL          | 8.0     | No             | No       | Yes             |                                        |
-| ZooKeeper      | 3.8.4   | Not Yet        | No       | Yes             |                                        |
-| Hadoop HDFS    | 3.3.6   | Yes            | No       | Yes             |                                        |
-| Hadoop YARN    | 3.3.6   | Yes            | No       | Yes             |                                        |
-| Hive Metastore | 2.3.9   | Yes            | No       | Yes             |                                        |
-| HiveServer2    | 2.3.9   | Yes            | No       | Yes             |                                        |
-| Kyuubi         | 1.10.1  | Yes            | No       | Yes             |                                        |
-| Spark          | 3.5.2   | Yes            | Yes      | Yes             | spark_enabled, spark_custom_name       |
-| Flink          | 1.20.0  | Yes            | Yes      | No              | flink_enabled                          |
-| Trino          | 436     | Not Yet        | Yes      | No              | trino_enabled                          |
-| Ranger         | 2.4.0   | Not Yet        | Yes      | No              | ranger_enabled                         |
-| Zeppelin       | 0.12.0  | Not Yet        | Yes      | Yes             | zeppelin_enabled, zeppelin_custom_name |
-| Kafka          | 3.6.2   | Not Yet        | Yes      | No              | kafka_enabled, kafka_ui_enabled        |
-| Grafana        | 11.1.3  | Not Applicable | Yes      | No              | grafana_enabled                        |
-| Prometheus     | 2.53.1  | Not Applicable | Yes      | No              | promeheus_enabled                      |
-| Loki           | 3.1.0   | Not Applicable | Yes      | No              | loki_enabled                           |
-| Iceberg        | 1.7.0   | Yes            | Yes      | Yes             | iceberg_enabled                        |
-| Hudi           | 0.14.1  | Yes            | Yes      | No              | hudi_enabled                           |
-| Parquet        | 1.15.0  | Not Applicable | Yes      | Yes             | parquet_enabled                        |
+| Name                 | Version | Kerberos Ready  | Optional | Default Enabled | Frequently Used Variables              |
+|----------------------| ------- |-----------------| -------- |-----------------|----------------------------------------|
+| JDK 8                | 8.0.432 | Not Applicable  | No       | Yes             |                                        |
+| JDK 11               | 11.0.25 | Not Applicable  | No       | Yes             |                                        |
+| JDK 17               | 17.0.13 | Not Applicable  | No       | Yes             |                                        |
+| JDK 21               | 21.0.5  | Not Applicable  | Yes      | No              | jdk21_enabled                          |
+| JDK 25               | 25.0.0  | Not Applicable  | Yes      | No              | jdk25_enabled                          |
+| KDC                  | latest  | Yes             | Yes      | No              | kerberos_enabled                       |
+| MySQL                | 8.0     | No              | No       | Yes             |                                        |
+| ZooKeeper            | 3.8.4   | Not Yet         | No       | Yes             |                                        |
+| Hadoop HDFS          | 3.4.2   | Yes             | No       | Yes             |                                        |
+| Hadoop YARN          | 3.4.2   | Yes             | No       | Yes             |                                        |
+| Hive Metastore       | 2.3.9   | Yes             | No       | Yes             |                                        |
+| HiveServer2          | 2.3.9   | Yes             | Yes      | Yes             | hive_server2_enabled                   |
+| Kyuubi               | 1.11.0  | Yes             | No       | Yes             |                                        |
+| Spark                | 4.0.1   | Yes             | Yes      | Yes             | spark_enabled, spark_custom_name       |
+| Spark Connect Server | 4.0.1   | Not Applicable  | Yes      | No              | spark_connect_server_enabled           |
+| Spark Thrift Server  | 4.0.1   | Yes             | Yes      | No              | spark_thrift_server_enabled            |
+| Flink                | 1.20.1  | Yes             | Yes      | No              | flink_enabled                          |
+| Trino                | 477     | Not Yet         | Yes      | No              | trino_enabled                          |
+| Ranger               | 2.4.0   | Not Yet         | Yes      | No              | ranger_enabled                         |
+| Zeppelin             | 0.12.0  | Not Yet         | Yes      | No              | zeppelin_enabled, zeppelin_custom_name |
+| Kafka                | 3.6.2   | Not Yet         | Yes      | No              | kafka_enabled                          |
+| Kafka UI             | 1.2.0   | Not Applicable  | Yes      | No              | kafka_ui_enabled                       |
+| Grafana              | 11.5.2  | Not Applicable  | Yes      | No              | grafana_enabled                        |
+| Prometheus           | 2.53.3  | Not Applicable  | Yes      | No              | promeheus_enabled                      |
+| Loki                 | 3.4.2   | Not Applicable  | Yes      | No              | loki_enabled                           |
+| Iceberg              | 1.10.0  | Yes             | Yes      | Yes             | iceberg_enabled                        |
+| Hudi                 | 0.14.1  | Yes             | Yes      | No              | hudi_enabled                           |
+| Parquet              | 1.16.0  | Not Applicable  | Yes      | Yes             | parquet_enabled                        |
 
 **Note** :
 
 - Most components respect `JAVA_HOME`, which is configured as JDK 8
+- Hadoop HDFS and YARN are configured to use JDK 17, but MapReduce keeps using JDK 8
 - Spark is configured to use JDK 17
-- Trino is configured to use JDK 21
+- Trino is configured to use JDK 25
 - Zeppelin is configured to use JDK 11
 
 ## Prepare
@@ -211,7 +216,7 @@ ansible-playbook build.yaml -e "{kerberos_enabled: true}"
 And some components are disabled by default, you can enable them by passing the `<component>_enabled` variable:
 
 ```bash
-ansible-playbook build.yaml -e "{jdk21_enabled: true, trino_enabled: true}"
+ansible-playbook build.yaml -e "{jdk25_enabled: true, trino_enabled: true}"
 ```
 
 Note: the whole variable list are defined in `host_vars/local.yaml`.
@@ -271,6 +276,10 @@ For example, to access service in Browser, use [SwitchyOmega](https://github.com
 
 Once the testing environment is fully operational, the following services will be accessible:
 
+- Supervisor: http://hadoop-master1.orb.local:9001
+- Supervisor: http://hadoop-worker1.orb.local:9001
+- Supervisor: http://hadoop-worker2.orb.local:9001
+- Supervisor: http://hadoop-worker3.orb.local:9001
 - Grafana: http://grafana.orb.local:3000
 - Prometheus: http://prometheus.orb.local:9090
 - Kafka UI: http://kafka-ui.orb.local:19092

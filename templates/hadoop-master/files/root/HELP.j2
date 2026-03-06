@@ -5,6 +5,10 @@
 kinit -kt /share/keytabs/hadoop-master1/spark.service.keytab spark/hadoop-master1.orb.local@TEST.ORG
 {% endif %}
 
+{% if trino_enabled %}
+PATH=/opt/openjdk-25/bin:$PATH /opt/trino/bin/trino-cli http://hadoop-master1.orb.local:18081 --catalog=lakehouse --schema=default
+{% endif %}
+
 Run Spark Pi
 {% if kerberos_enabled %}
 spark-submit run-example --deploy-mode cluster --queue root.default --proxy-user spark SparkPi 10
@@ -12,14 +16,30 @@ spark-submit run-example --deploy-mode cluster --queue root.default --proxy-user
 spark-submit run-example --deploy-mode cluster --queue root.default SparkPi 10
 {% endif %}
 
-# Connect to HiveServer2 directly
+{% if hive_server2_enabled %}
+# Connect to HiveServer2
 {% if kerberos_enabled %}
 kyuubi-beeline -u 'jdbc:hive2://hadoop-master1.orb.local:10000/default;principal=hive/_HOST@TEST.ORG'
 {% else %}
 kyuubi-beeline -u 'jdbc:hive2://hadoop-master1.orb.local:10000/default;user=hive'
 {% endif %}
+{% endif %}
 
-# Connect to Kyuubi directly
+{% if spark_thrift_server_enabled %}
+# Connect to Spark ThriftServer
+{% if kerberos_enabled %}
+kyuubi-beeline -u 'jdbc:hive2://hadoop-master1.orb.local:10010/default;principal=hive/_HOST@TEST.ORG'
+{% else %}
+kyuubi-beeline -u 'jdbc:hive2://hadoop-master1.orb.local:10010/default;user=hive'
+{% endif %}
+{% endif %}
+
+{% if spark_connect_server_enabled %}
+# Connect to Spark Connect Server
+spark-shell --properties-file /etc/spark/conf/spark-connect.conf
+{% endif %}
+
+# Connect to Kyuubi
 {% if kerberos_enabled %}
 kyuubi-beeline -u 'jdbc:kyuubi://hadoop-master1.orb.local:10009/default;kyuubiClientPrincipal=spark/_HOST@TEST.ORG;kyuubiClientKeytab=/share/keytabs/hadoop-master1/spark.service.keytab;kyuubiServerPrincipal=kyuubi/_HOST@TEST.ORG'
 kyuubi-beeline -u 'jdbc:kyuubi://hadoop-master1.orb.local:10009/default;principal=kyuubi/_HOST@TEST.ORG'

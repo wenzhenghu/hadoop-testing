@@ -18,6 +18,7 @@ ARG ZEPPELIN_VERSION
 ARG ZOOKEEPER_VERSION
 ARG HADOOP_VERSION
 ARG HIVE_VERSION
+ARG HIVE_ICEBERG_VERSION
 ARG SPARK_VERSION
 ARG SPARK_BINARY_VERSION
 ARG FLINK_VERSION
@@ -30,6 +31,7 @@ ARG LOKI_APPENDER_VERSION
 ARG RANGER_VERSION
 ARG ICEBERG_VERSION
 ARG HUDI_VERSION
+ARG KAFKA_VERSION
 ARG TRINO_VERSION
 ARG PARQUET_VERSION
 
@@ -104,9 +106,13 @@ RUN ln -snf /opt/apache-zookeeper-${ZOOKEEPER_VERSION}-bin ${ZOOKEEPER_HOME} && 
     ln -snf /opt/apache-hive-${HIVE_VERSION}-bin ${HIVE_HOME} && \
     ln -snf /opt/apache-kyuubi-${KYUUBI_VERSION}-bin ${KYUUBI_HOME} && \
     ln -snf ${HIVE_CONF_DIR}/hive-site.xml ${KYUUBI_CONF_DIR}/hive-site.xml && \
+    mkdir -p /var/log/hive && chmod -R 777 /var/log/hive && \
     mkdir -p /var/log/kyuubi && chmod -R 777 /var/log/kyuubi
 
-ADD download/log4j-layout-template-json-2.20.0.jar ${KYUUBI_HOME}/jars/
+{% if iceberg_enabled %}
+ADD download/iceberg-hive-runtime-${HIVE_ICEBERG_VERSION}.jar ${HIVE_HOME}/lib/
+{% endif %}
+
 ADD download/mysql-connector-j-${MYSQL_JDBC_VERSION}.jar ${KYUUBI_HOME}/jars/
 
 {% if spark_enabled %}
@@ -172,7 +178,7 @@ ADD download/jcl-over-slf4j-1.7.36.jar ${FLINK_HOME}/lib/
 ADD download/flink-sql-connector-hive-${FLINK_HIVE_VERSION}_2.12-${FLINK_VERSION}.jar ${FLINK_HOME}/lib/
 {% endif %}
 {% if trino_enabled %}
-ADD --chmod=755 download/trino-cli-${TRINO_VERSION}-executable.jar ${TRINO_HOME}/bin/trino-cli
+ADD --chmod=755 download/trino-cli-${TRINO_VERSION} ${TRINO_HOME}/bin/trino-cli
 {% endif %}
 {% if parquet_enabled %}
 ADD download/parquet-cli-${PARQUET_VERSION}-runtime.jar ${PARQUET_HOME}/jars/
@@ -187,6 +193,13 @@ ADD download/kyuubi-spark-connector-tpcds_${SPARK_SCALA_BINARY_VERSION}-${KYUUBI
 ADD download/log4j2-appender-nodep-${LOKI_APPENDER_VERSION}.jar ${SPARK_HOME}/jars/
 {% endif %}
 
+{% if spark_enabled and kafka_enabled %}
+ADD download/kafka-clients-${KAFKA_VERSION}.jar ${SPARK_HOME}/jars/
+ADD download/spark-sql-kafka-0-10_${SPARK_SCALA_BINARY_VERSION}-${SPARK_VERSION}.jar ${SPARK_HOME}/jars/
+ADD download/spark-token-provider-kafka-0-10_${SPARK_SCALA_BINARY_VERSION}-${SPARK_VERSION}.jar ${SPARK_HOME}/jars/
+ADD download/commons-pool2-2.12.1.jar ${SPARK_HOME}/jars/
+{% endif %}
+
 {% if ranger_enabled %}
 # chown would doulbe the size of the image by introduce a new layer, but ranger seems does not work without chmod
 RUN chown -R ranger:hadoop /opt/ranger-${RANGER_VERSION}-admin
@@ -194,14 +207,14 @@ RUN chown -R ranger:hadoop /opt/ranger-${RANGER_VERSION}-admin
 
 RUN /opt/hadoop-init.d/init-hdfs.sh
 {% if trino_enabled %}
-RUN /opt/trino-init.d/init-workdir.sh
+RUN mkdir /var/trino && chown -R trino:trino /var/trino
 {% endif %}
 
 # Zookeeper ports
 EXPOSE 2181
 
 # HDFS ports
-EXPOSE 8020 9864 9866 9867 9870
+EXPOSE 1004 1006 8020 9866 9867 9870 9864 50470
 
 # YARN ports
 EXPOSE 8030 8031 8032 8033 8040 8041 8042 8088 10020 19888

@@ -14,28 +14,38 @@ jdk21_enabled: false
 zulu21_version: 21.38.21
 jdk21_version: 21.0.5
 
+jdk25_enabled: false
+zulu25_version: 25.28.85
+jdk25_version: 25.0.0
+
 s3_enabled: false
 aws_java_sdk_version: 1.12.620
 
 # components
 kerberos_enabled: false
 
-hadoop_version: 3.3.6
+hadoop_version: 3.4.2
+hadoop_custom_name: lean
 
 hive_version: 2.3.9
+hive_server2_enabled: true
+hive_iceberg_version: 1.7.2
 
-zeppelin_enabled: true
+zeppelin_enabled: false
 zeppelin_version: 0.12.0
 zeppelin_custom_name: all
 
 zookeeper_version: 3.8.4
 
 spark_enabled: true
-spark_version: 3.5.5
-spark_binary_version: 3.5
-spark_scala_binary_version: 2.12
-spark_hadoop_version: 3.3.4
+spark_version: 4.0.1
+spark_binary_version: 4.0
+spark_scala_binary_version: 2.13
+spark_hadoop_version: 3.4.1
 spark_custom_name: hadoop3
+spark_structured_logging_enabled: false
+spark_connect_server_enabled: false
+spark_thrift_server_enabled: false
 
 flink_enabled: false
 flink_binary_version: '1.20'
@@ -43,20 +53,20 @@ flink_version: 1.20.1
 flink_hive_version: 2.3.10
 
 kyuubi_enabled: true
-kyuubi_version: 1.10.1
+kyuubi_version: 1.11.0
 kyuubi_hadoop_version: 3.3.6
 
 ranger_enabled: false
 ranger_version: 2.4.0
 
 trino_enabled: false
-trino_version: 436
+trino_version: 477
 
 parquet_enabled: true
-parquet_version: 1.15.0
+parquet_version: 1.16.0
 
 iceberg_enabled: true
-iceberg_version: 1.8.1
+iceberg_version: 1.10.0
 
 hudi_enabled: false
 hudi_version: 0.14.1
@@ -64,7 +74,7 @@ hudi_version: 0.14.1
 kafka_enabled: false
 kafka_version: 3.6.2
 kafka_ui_enabled: false
-kafka_ui_version: 1.1.0
+kafka_ui_version: 1.2.0
 
 grafana_enabled: false
 grafana_version: 11.5.2
@@ -80,4 +90,4 @@ loki_log4j2_appender_version: 0.9.32
 repository_apache: https://mirrors.cloud.tencent.com/apache
 repository_maven: https://mirrors.cloud.tencent.com/maven
 
-apt_mirror_enabled: true
+apt_mirror_enabled: false

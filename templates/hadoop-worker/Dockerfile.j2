@@ -49,11 +49,11 @@ RUN chown -R root:hadoop /opt/hadoop-${HADOOP_VERSION} && \
 
 RUN /opt/hadoop-init.d/init-hdfs.sh
 {% if trino_enabled %}
-RUN /opt/trino-init.d/init-workdir.sh
+RUN mkdir /var/trino && chown -R trino:trino /var/trino
 {% endif %}
 
 # HDFS ports
-EXPOSE 9864 9866 9867 9870
+EXPOSE 1004 1006 8020 9866 9867 9870 9864 50470
 
 # YARN ports
 EXPOSE 8030 8031 8032 8033 8040 8041 8042 8088 10020 19888

@@ -33,6 +33,19 @@ spark.executor.extraLibraryPath=/opt/hadoop/lib/native
 spark.eventLog.enabled=true
 spark.eventLog.dir=hdfs://hadoop-master1.orb.local:8020/spark-history
 
+{% if spark_structured_logging_enabled %}
+spark.log.structuredLogging.enabled=true
+{% endif %}
+
+{% if spark_connect_server_enabled %}
+spark.connect.grpc.binding.address=hadoop-master1.orb.local
+spark.connect.grpc.binding.port=15002
+{% endif %}
+
+{% if spark_thrift_server_enabled %}
+spark.hadoop.hive.server2.thrift.port=10010
+{% endif %}
+
 spark.history.ui.port=18080
 spark.history.fs.logDirectory=hdfs://hadoop-master1.orb.local:8020/spark-history
 {% if kerberos_enabled %}
@@ -46,6 +59,12 @@ spark.shuffle.service.enabled=true
 
 spark.sql.catalog.tpcds=org.apache.kyuubi.spark.connector.tpcds.TPCDSCatalog
 spark.sql.catalog.tpch=org.apache.kyuubi.spark.connector.tpch.TPCHCatalog
+
+spark.sql.catalog.mysql=org.apache.spark.sql.execution.datasources.v2.jdbc.JDBCTableCatalog
+spark.sql.catalog.mysql.url=jdbc:mysql://mysql:3306/metastore?useSSL=false
+spark.sql.catalog.mysql.driver=com.mysql.cj.jdbc.Driver
+spark.sql.catalog.mysql.user=root
+spark.sql.catalog.mysql.password=root
 
 {% if iceberg_enabled %}
 spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions

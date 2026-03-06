@@ -1,7 +1,11 @@
 <?xml version="1.0"?>
 <configuration>
-  {% if kerberos_enabled %}
   <!-- Hive Server2 -->
+  <property>
+    <name>hive.server2.thrift.port</name>
+    <value>10000</value>
+  </property>
+  {% if kerberos_enabled %}
   <property>
     <name>hive.server2.authentication</name>
     <value>kerberos</value>
@@ -52,6 +56,10 @@
   <property>
     <name>javax.jdo.option.ConnectionPassword</name>
     <value>root</value>
+  </property>
+  <property>
+    <name>datanucleus.connectionPoolingType</name>
+    <value>DBCP</value>
   </property>
   <property>
     <name>datanucleus.autoCreateSchema</name>
@@ -105,6 +113,10 @@
   </property>
   <property>
     <name>hive.metastore.disallow.incompatible.col.type.changes</name>
+    <value>false</value>
+  </property>
+  <property>
+    <name>hive.cbo.enable</name>
     <value>false</value>
   </property>
 </configuration>
